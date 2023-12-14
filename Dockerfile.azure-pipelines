@@ -1,8 +1,6 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
     apt-transport-https \
     apt-utils \
@@ -13,9 +11,18 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     jq \
     lsb-release \
     software-properties-common \
-    wget
+    wget 
 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    apt install dirmngr lsb-release ca-certificates software-properties-common apt-transport-https curl -y && \
+    curl -fSsL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /usr/share/keyrings/powershell.gpg > /dev/null && \
+    echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/powershell.gpg] https://packages.microsoft.com/ubuntu/22.04/prod/ jammy main" | tee /etc/apt/sources.list.d/powershell.list && \
+    apt update && \
+    apt install powershell
+
+RUN apt-get install -y powershell
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
